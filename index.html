@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DevBoard is a local-first workspace for developer projects, tasks, milestones, and activity.">
+    <meta name="theme-color" content="#f7f7f4">
+    <title>DevBoard - Developer Workspace</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <script src="src/core.js" defer></script>
+    <script src="src/app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand-row">
+          <a class="brand" href="#overview" aria-label="DevBoard home">
+            <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+            <span>DevBoard</span>
+          </a>
+          <button class="icon-button close-sidebar" id="closeSidebar" type="button" aria-label="Close navigation" title="Close navigation">&times;</button>
+        </div>
+
+        <nav class="primary-nav" aria-label="Primary navigation">
+          <p class="nav-label">Workspace</p>
+          <a class="nav-item active" href="#overview" data-view="overview"><span aria-hidden="true">&#9638;</span>Overview</a>
+          <a class="nav-item" href="#projects" data-view="projects"><span aria-hidden="true">&#9783;</span>Projects <span class="nav-count" id="projectCount">0</span></a>
+          <a class="nav-item" href="#tasks" data-view="tasks"><span aria-hidden="true">&#10003;</span>My tasks <span class="nav-count" id="taskCount">0</span></a>
+          <a class="nav-item" href="#activity" data-view="activity"><span aria-hidden="true">&#8635;</span>Activity</a>
+
+          <p class="nav-label nav-label-spaced">Manage</p>
+          <a class="nav-item" href="#milestones" data-view="milestones"><span aria-hidden="true">&#9678;</span>Milestones</a>
+          <a class="nav-item" href="#settings" data-view="settings"><span aria-hidden="true">&#9881;</span>Settings</a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="usage-row"><span>Weekly focus</span><strong id="sidebarFocus">0%</strong></div>
+          <div class="progress-track" aria-hidden="true"><span id="sidebarProgress"></span></div>
+          <p>Progress across active tasks</p>
+        </div>
+      </aside>
+
+      <button class="sidebar-scrim" id="sidebarScrim" type="button" aria-label="Close navigation"></button>
+
+      <main class="main-content">
+        <header class="topbar">
+          <button class="icon-button menu-button" id="openSidebar" type="button" aria-label="Open navigation" title="Open navigation">&#9776;</button>
+          <div class="search-wrap">
+            <span aria-hidden="true">&#9906;</span>
+            <label class="sr-only" for="globalSearch">Search projects and tasks</label>
+            <input id="globalSearch" type="search" placeholder="Search projects and tasks">
+            <kbd>/</kbd>
+          </div>
+          <div class="topbar-actions">
+            <p class="today" id="todayLabel"></p>
+            <button class="icon-button" id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme">&#9788;</button>
+            <button class="avatar-button" id="profileButton" type="button" aria-label="Open profile menu" title="Profile">DB</button>
+          </div>
+        </header>
+
+        <div class="content-wrap">
+          <section class="page-heading" id="overview">
+            <div>
+              <p class="eyebrow">Personal workspace</p>
+              <h1 id="greeting">Hello, Developer.</h1>
+              <p class="page-subtitle">Here is what is moving across your projects today.</p>
+            </div>
+            <button class="primary-button" id="addTaskButton" type="button"><span aria-hidden="true">+</span> Add task</button>
+          </section>
+
+          <section class="metric-grid" aria-label="Workspace metrics">
+            <article class="metric">
+              <div class="metric-label"><span class="metric-dot coral"></span>Active projects</div>
+              <div class="metric-value"><strong id="activeProjectsMetric">0</strong><span id="activeProjectsTrend">In motion</span></div>
+            </article>
+            <article class="metric">
+              <div class="metric-label"><span class="metric-dot teal"></span>Tasks completed</div>
+              <div class="metric-value"><strong id="completedTasksMetric">0</strong><span>This cycle</span></div>
+            </article>
+            <article class="metric">
+              <div class="metric-label"><span class="metric-dot yellow"></span>Focus score</div>
+              <div class="metric-value"><strong id="focusMetric">0%</strong><span>On track</span></div>
+            </article>
+            <article class="metric">
+              <div class="metric-label"><span class="metric-dot ink"></span>Open milestones</div>
+              <div class="metric-value"><strong id="milestoneMetric">0</strong><span>Next 30 days</span></div>
+            </article>
+          </section>
+
+          <section class="dashboard-grid">
+            <div class="section-block projects-panel" id="projects">
+              <div class="section-heading">
+                <div>
+                  <h2>Projects</h2>
+                  <p>Recent work and delivery health</p>
+                </div>
+                <div class="segmented-control" role="group" aria-label="Filter projects">
+                  <button class="segment active" type="button" data-project-filter="all">All</button>
+                  <button class="segment" type="button" data-project-filter="active">Active</button>
+                  <button class="segment" type="button" data-project-filter="paused">Paused</button>
+                </div>
+              </div>
+              <div class="project-table-wrap">
+                <table class="project-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Project</th>
+                      <th scope="col">Language</th>
+                      <th scope="col">Progress</th>
+                      <th scope="col">Updated</th>
+                      <th scope="col"><span class="sr-only">Favorite</span></th>
+                    </tr>
+                  </thead>
+                  <tbody id="projectRows"></tbody>
+                </table>
+              </div>
+              <p class="empty-state" id="projectsEmpty" hidden>No projects match your search.</p>
+            </div>
+
+            <aside class="section-block focus-panel" aria-labelledby="focusTitle">
+              <div class="section-heading">
+                <div>
+                  <h2 id="focusTitle">This week</h2>
+                  <p id="weekRange">Current week</p>
+                </div>
+                <span class="status-chip">On track</span>
+              </div>
+              <div class="focus-visual">
+                <div class="donut" id="focusDonut" role="img" aria-label="Weekly focus completion">
+                  <div><strong id="donutValue">0%</strong><span>complete</span></div>
+                </div>
+                <div class="focus-summary">
+                  <div><span>Completed</span><strong id="focusCompleted">0</strong></div>
+                  <div><span>In progress</span><strong id="focusInProgress">0</strong></div>
+                  <div><span>Remaining</span><strong id="focusRemaining">0</strong></div>
+                </div>
+              </div>
+              <div class="milestone-callout">
+                <span class="milestone-icon" aria-hidden="true">&#9670;</span>
+                <div><p>Next milestone</p><strong id="nextMilestone">No milestones yet</strong></div>
+                <span id="nextMilestoneDate">--</span>
+              </div>
+            </aside>
+          </section>
+
+          <section class="section-block task-section" id="tasks">
+            <div class="section-heading">
+              <div>
+                <h2>Task board</h2>
+                <p>Move work forward one clear step at a time</p>
+              </div>
+              <button class="text-button" id="clearCompleted" type="button">Clear completed</button>
+            </div>
+            <div class="task-board" id="taskBoard"></div>
+            <p class="empty-state" id="tasksEmpty" hidden>No tasks match your search.</p>
+          </section>
+
+          <section class="lower-grid">
+            <div class="section-block" id="activity">
+              <div class="section-heading">
+                <div>
+                  <h2>Recent activity</h2>
+                  <p>Updates from across your workspace</p>
+                </div>
+              </div>
+              <ol class="activity-list" id="activityList"></ol>
+            </div>
+
+            <div class="section-block" id="milestones">
+              <div class="section-heading">
+                <div>
+                  <h2>Milestones</h2>
+                  <p>Upcoming delivery targets</p>
+                </div>
+              </div>
+              <div class="milestone-list" id="milestoneList"></div>
+            </div>
+          </section>
+
+          <section class="settings-section" id="settings">
+            <div>
+              <h2>Workspace settings</h2>
+              <p>DevBoard stores your workspace locally in this browser.</p>
+            </div>
+            <button class="secondary-button" id="resetWorkspace" type="button">Reset sample data</button>
+          </section>
+
+          <footer class="app-footer">
+            <span>DevBoard</span>
+            <span>Built for focused shipping.</span>
+          </footer>
+        </div>
+      </main>
+    </div>
+
+    <dialog class="task-dialog" id="taskDialog">
+      <form id="taskForm" method="dialog">
+        <div class="dialog-heading">
+          <div><p class="eyebrow">New work item</p><h2>Add a task</h2></div>
+          <button class="icon-button" id="closeTaskDialog" type="button" aria-label="Close dialog" title="Close">&times;</button>
+        </div>
+        <label>Task title<input id="taskTitle" name="title" type="text" maxlength="80" placeholder="What needs to happen?" required></label>
+        <div class="form-row">
+          <label>Project<select id="taskProject" name="project" required></select></label>
+          <label>Status<select id="taskStatus" name="status"><option value="todo">To do</option><option value="progress">In progress</option><option value="done">Done</option></select></label>
+        </div>
+        <div class="form-row">
+          <label>Priority<select id="taskPriority" name="priority"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></label>
+          <label>Due date<input id="taskDueDate" name="dueDate" type="date" required></label>
+        </div>
+        <div class="dialog-actions">
+          <button class="secondary-button" id="cancelTask" type="button">Cancel</button>
+          <button class="primary-button" type="submit">Create task</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
